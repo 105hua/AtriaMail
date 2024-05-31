@@ -11,6 +11,10 @@
     "@types/bun": "latest"
   },
   "dependencies": {
-    "electron": "^30.0.9"
+    "dotenv": "^16.4.5",
+    "electron": "^30.0.9",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-oauth2": "^1.8.0"
   }
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com">
+        <title>Hello World!</title>
+        <link rel="stylesheet" href="./styles.css">
+    </head>
+
+    <body>
+        <!-- TITLE BAR -->
+        <div id="title_bar">
+            <div id="title">AtriaMail</div>
+            <div id="controls">
+              <button id="minimize-button">🗕</button>
+              <button id="maximize-button">🗖</button>
+              <button id="close-button">✖</button>
+            </div>
+        </div>
+
+        <h1 class="title">Welcome!</h1>
+        <p class="description">
+            Welcome to AtriaMail, a simple E-Mail Client that is focused around AI and built with Electron. 
+        </p>
+        <p class="description">
+            E-Mail Management should not have to feel like a chore, that's why we have developed a simple
+            yet effective application that aims to make this easier. The feature that sets us apart from
+            other E-Mail solutions is our applications of Artificial Intelligence. Whether you are unsure
+            on how to respond to an E-Mail or you are not sure whether an E-Mail may be spam or not, AtriaMail
+            aims to assist you with that.
+        </p>
+        <p class="description">
+            <strong>
+                Please note that AtriaMail is under a heavy work-in-progress. There may be features missing,
+                bugs and other issues and in it's current state, we do not recommend its use within important
+                environments such as work or school. In addition to this, we also only support Google Mail at
+                the moment, with plans to support other E-Mail providers in the future.
+            </strong>
+        </p>
+        <p class="description">
+            With that being said, if you would like to get started, please click on the button below!
+        </p>
+
+        <button id="get-started-button">Get Started</button>
+
+        <script src="./renderer.js"></script>
+    </body>
+</html>
