@@ -1,0 +1,16 @@
+{
+  "name": "atriamail",
+  "version": "1.0.0",
+  "author": "105hua",
+  "license": "AGPL-3.0-only",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "electron": "^30.0.9"
+  }
+}

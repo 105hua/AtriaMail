@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com">
+    <title>Hello World!</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <!-- TITLE BAR -->
+    <div id="title_bar">
+      <div id="title">AtriaMail</div>
+      <div id="controls">
+        <button id="minimize-button">🗕</button>
+        <button id="maximize-button">🗖</button>
+        <button id="close-button">✖</button>
+      </div>
+    </div>
+
+    <div class="app-container">
+
+      <!-- SIDEBAR -->
+      <div id="sidebar">
+        <div id="sidebar-controls">
+          <button class="sidebar-button" id="compose-button"><img class="sidebar-icon" src="./icons/compose.svg" alt="Compose"></button>
+          <button class="sidebar-button" id="inbox-button"><img class="sidebar-icon" src="./icons/inbox.svg" alt="Inbox"></button>
+          <button class="sidebar-button" id="sent-button"><img class="sidebar-icon" src="./icons/sent.svg" alt="Sent"></button>
+          <button class="sidebar-button" id="drafts-button"><img class="sidebar-icon" src="./icons/draft.svg" alt="Drafts"></button>
+          <button class="sidebar-button" id="trash-button"><img class="sidebar-icon" src="./icons/recycle.svg" alt="Trash"></button>
+        </div>
+
+        <div id="emails-container">
+          <div class="email">
+            <div class="email-sender">john@example.com</div>
+            <div class="email-subject">Welcome to AtriaMail!</div>
+            <div class="email-body">This is an example E-Mail...</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-email-container">
+        <div id="view-email-summary">
+          <div class="email-title">Welcome to AtriaMail!</div>
+          <div class="view-email-sender">From: john@example.com</div>
+        </div>
+        <div class="view-email-body">
+          Dear John,<br><br>
+          We are pleased to welcome you to AtriaMail, your new go-to platform for seamless and secure email communication!<br><br>
+
+          At AtriaMail, we prioritize your privacy and convenience, offering a modern and user-friendly interface that ensures a smooth and efficient E-Mail experience.
+          Here is what you can expect:
+          <ul>
+            <li><strong>Enhanced Security:</strong> We know how much you value your security, therefore, we take every measure possible to ensure that you are secure when using the application.</li>
+            <li><strong>User-Friendly Interface:</strong> We've adopted a simple yet effective design to make managing your emails a breeze.</li>
+            <li><strong>Artificial Intelligence:</strong> Not sure on how to structure an E-Mail? No problem! Let AI handle it for you in a range of tones, length and more.</li>
+          </ul>
+
+          To get started, simply login to your account and start managing your E-Mails better today! Please note that we only support Google Mail at the moment, however, we intend to expand to other
+          providers in the near future, thank you!
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
