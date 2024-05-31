@@ -14,5 +14,7 @@ contextBridge.exposeInMainWorld("api", {
     minimizeApp: () => ipcRenderer.send("minimize-application"),
     maximizeApp: () => ipcRenderer.send("maximize-application"),
     closeApp: () => ipcRenderer.send("close-application"),
-    getStarted: () => ipcRenderer.send("get-started")
+    getStarted: () => ipcRenderer.send("get-started"),
+    googleAuth: () => ipcRenderer.send("google-auth"),
+    checkGoogleAuth: () => ipcRenderer.send("check-google-auth")
 });

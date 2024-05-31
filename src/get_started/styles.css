@@ -45,3 +45,22 @@ body{
 #controls button:hover {
     color: #ddd;
 }
+
+.title{
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+}
+
+#sign-in-button{
+    background-color: #1e293b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+
+    display: block;
+    margin: 0 auto;
+}
