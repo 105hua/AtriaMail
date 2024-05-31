@@ -15,7 +15,7 @@ const createWindow = () => {
         minWidth: 1400,
         minHeight: 700
     });
-    window.loadFile('./src/index/index.html');
+    window.loadFile('./src/main_menu/index.html');
 };
 
 app.whenReady().then(() => {
