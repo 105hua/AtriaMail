@@ -9,7 +9,9 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        name: "electron_forge"
+      },
     },
     {
       name: '@electron-forge/maker-zip',
@@ -28,6 +30,25 @@ module.exports = {
     {
       name: '@electron-forge/plugin-auto-unpack-natives',
       config: {},
+    },
+    {
+      name: "@electron-forge/plugin-webpack",
+      config: {
+        mainConfig: "./webpack.main.config.js",
+        renderer: {
+          config: "./webpack.renderer.config.js",
+          entryPoints: [
+            {
+              html: "./src/index/index.html",
+              js: "./src/index/index.js",
+              name: "main_window",
+              preload: {
+                config: "webpack.preload.config.js"
+              }
+            }
+          ]
+        }
+      }
     },
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application

@@ -1,0 +1,1 @@
+module.exports = __non_webpack_require__(__nccwpck_require__.ab + "build/Release/keytar.node")

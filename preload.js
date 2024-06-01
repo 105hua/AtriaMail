@@ -1,7 +1,7 @@
 const { ipcRenderer } = require("electron");
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log("Preload Script Loaded");
+    ipcRenderer.send("preload-logger", "info", "Preload Script Loaded");
     // Define replacetext, which replaces the text of an element with the given selector.
     const replaceText = (selector, text) => {
         const element = document.getElementById(selector);
@@ -28,30 +28,30 @@ window.addEventListener("DOMContentLoaded", () => {
     // Get Started Page Listeners.
     const getStartedSignInButton = document.getElementById("get-started-sign-in-button");
     if(getStartedSignInButton != null || getStartedSignInButton != undefined){
-        console.log("Get Started Sign In Button Found");
+        ipcRenderer.send("preload-logger", "info", "Get Started Sign In Button Found");
         getStartedSignInButton.addEventListener("click", () => {
             ipcRenderer.send("google-auth")
         });
     }else{
-        console.log("Get Started Sign In Button Not Found");
+        ipcRenderer.send("preload-logger", "info", "Get Started Sign In Button Not Found");
     }
     const getStartedCheckAuthButton = document.getElementById("get-started-check-auth-button");
     if(getStartedCheckAuthButton != null || getStartedCheckAuthButton != undefined){
-        console.log("Get Started Check Auth Button Found");
+        ipcRenderer.send("preload-logger", "info", "Get Started Check Auth Button Found");
         getStartedCheckAuthButton.addEventListener("click", () => {
             ipcRenderer.send("exchange-token");
         });
     }else{
-        console.log("Get Started Check Auth Button Not Found");
+        ipcRenderer.send("preload-logger", "info", "Get Started Check Auth Button Not Found");
     }
     // Index Page Listeners.
     const indexSignInButton = document.getElementById("index-get-started-button");
     if(indexSignInButton != null || indexSignInButton != undefined){
-        console.log("Index Sign In Button Found");
+        ipcRenderer.send("preload-logger", "info", "Index Sign In Button Found");
         indexSignInButton.addEventListener("click", () => {
             ipcRenderer.send("get-started");
         });
     }else{
-        console.log("Index Sign In Button Not Found");
+        ipcRenderer.send("preload-logger", "info", "Index Sign In Button Not Found");
     }
 });

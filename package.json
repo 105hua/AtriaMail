@@ -23,8 +23,18 @@
     "electron": "^30.0.9"
   },
   "dependencies": {
+    "@electron-forge/plugin-webpack": "^7.4.0",
+    "@herberttn/bytenode-webpack-plugin": "^2.3.1",
+    "@vercel/webpack-asset-relocator-loader": "^1.7.4",
+    "bytenode": "^1.5.6",
+    "css-loader": "^7.1.2",
     "dotenv": "^16.4.5",
     "keytar": "^7.9.0",
+    "node-emoji": "^2.1.3",
+    "node-loader": "^2.0.0",
+    "style-loader": "^4.0.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.91.0",
     "winston": "^3.13.0"
   }
 }

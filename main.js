@@ -9,12 +9,20 @@ const logger = winston.createLogger({
     level: "info",
     transports: [
         new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-                winston.format.printf(({ timestamp, level, msg }) => {
-                    return`🧋 ${timestamp} [${level}] ${msg}`;
-                })
-            )
+            format: winston.format.printf(({ timestamp, level, message }) => {
+                    return `[MAIN] [${level.toUpperCase()}]: ${message}`;
+            })
+        })
+    ]
+});
+
+const preloadLogger = winston.createLogger({
+    level: "info",
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.printf(({ timestamp, level, message }) => {
+                    return `[PRELOAD] [${level.toUpperCase()}]: ${message}`;
+            })
         })
     ]
 });
@@ -148,7 +156,7 @@ ipcMain.on("google-auth", async () => {
                 }
             }
         }catch(err){
-            console.warn(err);
+            logger.warn(err);
             return false;
         }
     });
@@ -166,7 +174,7 @@ ipcMain.on("exchange-token", async () => {
         const encryptedBuffer = Buffer.from(encryptedPassword, "base64");
         authorisationCode = safeStorage.decryptString(encryptedBuffer);
         if(authorisationCode == null){
-            console.log("No Authorisation Code");
+            logger.info("No Authorisation Code");
             return;
         }
         data.append("code", authorisationCode);
@@ -196,5 +204,23 @@ ipcMain.on("exchange-token", async () => {
         .catch(err => logger.warn("ERROR: ", err));
     }catch(err){
         logger.warn(err);
+    }
+});
+
+// Preload logger event.
+ipcMain.on("preload-log", (event, level, message) => {
+    switch(level){
+        case "info":
+            preloadLogger.info(message);
+            break;
+        case "warn":
+            preloadLogger.warn(message);
+            break;
+        case "error":
+            preloadLogger.error(message);
+            break;
+        default:
+            preloadLogger.info(message);
+            break;
     }
 });
