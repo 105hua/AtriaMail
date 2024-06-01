@@ -1,5 +1,7 @@
 # atriamail
 
+***This version of AtriaMail is now considered "legacy", as I will be moving the project to an electron-vite and express-based solution.***
+
 To install dependencies:
 
 ```bash
