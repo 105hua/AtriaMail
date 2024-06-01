@@ -58,7 +58,7 @@ body{
     margin-right: 2rem;
 }
 
-#get-started-button{
+#index-get-started-button{
     display: block;
     margin: 0 auto;
     padding: 10px;
@@ -72,7 +72,7 @@ body{
     margin-top: 5rem;
 }
 
-#get-started-button:hover{
+#index-get-started-button:hover{
     background-color: #334155;
     cursor: pointer;
 }

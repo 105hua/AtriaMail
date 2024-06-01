@@ -10,6 +10,7 @@ const createWindow = () => {
         height: 700,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
             sandbox: true
         },
         titleBarStyle: "hidden",
@@ -66,7 +67,12 @@ ipcMain.on("google-auth", async () => {
     const authWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        titleBarStyle: "hidden"
+        titleBarStyle: "hidden",
+        webPreferences: {
+            contextIsolation: true,
+            sandbox: true,
+            preload: path.join(__dirname, "preload.js")
+        }
     });
     authWindow.loadURL(google_auth_url);
     authWindow.show();
