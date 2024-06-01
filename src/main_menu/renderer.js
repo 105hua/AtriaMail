@@ -4,6 +4,15 @@ const minimizeButton = document.getElementById("minimize-button");
 const maximizeButton = document.getElementById("maximize-button");
 const closeButton = document.getElementById("close-button");
 
+document.body.onload = () => {
+    const authStatus = window.api.checkGoogleAuth();
+    if(authStatus){
+        console.log("User is authenticated");
+    }else{
+        console.log("User is not authenticated");
+    }
+};
+
 minimizeButton.addEventListener("click", () => {
     window.api.minimizeApp();
 });

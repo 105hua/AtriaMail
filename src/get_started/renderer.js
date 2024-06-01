@@ -4,6 +4,7 @@ const minimizeButton = document.getElementById("minimize-button");
 const maximizeButton = document.getElementById("maximize-button");
 const closeButton = document.getElementById("close-button");
 const signInButton = document.getElementById("sign-in-button");
+const checkAuthButton = document.getElementById("check-auth-button");
 
 minimizeButton.addEventListener("click", () => {
     window.api.minimizeApp();
@@ -19,4 +20,8 @@ closeButton.addEventListener("click", () => {
 
 signInButton.addEventListener("click", () => {
     window.api.googleAuth();
+});
+
+checkAuthButton.addEventListener("click", () => {
+    window.api.exchangeToken();
 });

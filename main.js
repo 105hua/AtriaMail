@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, safeStorage } = require("electron");
 const path = require("node:path");
 const keytar = require("keytar");
+const crypto = require("crypto");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 
 let window = null;
@@ -57,8 +59,13 @@ ipcMain.on("get-started", () => {
 });
 
 // Google Auth Event
-ipcMain.on("google-auth", () => {
-    const google_auth_url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.oauth_client_id}&redirect_uri=http://localhost/oauth&scope=https%3A%2F%2Fmail.google.com%2F&access_type=offline&prompt=consent`;
+
+const codeVerifier = crypto.randomBytes(32).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+const codeChallenge = crypto.createHash("sha256").update(codeVerifier).digest().toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+let authorisationCode = null;
+
+ipcMain.on("google-auth", async () => {
+    const google_auth_url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.oauth_client_id}&redirect_uri=http://localhost/oauth&scope=https%3A%2F%2Fmail.google.com%2F&access_type=offline&prompt=consent&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     const authWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -66,13 +73,14 @@ ipcMain.on("google-auth", () => {
     });
     authWindow.loadURL(google_auth_url);
     authWindow.show();
-    authWindow.webContents.on("will-redirect", function(event, newUrl){
+    authWindow.webContents.on("will-redirect", async function(event, newUrl){
         try{
             if(newUrl.startsWith("http://localhost/oauth")){
                 event.preventDefault();
                 const url = new URL(newUrl);
-                let code = url.searchParams.get("code");
-                if(code == null){
+                console.log(url);
+                authorisationCode = url.searchParams.get("code");
+                if(authorisationCode == null){
                     console.log("Access Denied");
                     authWindow.loadFile("./src/denial/index.html");
                     setTimeout(() => {
@@ -80,8 +88,8 @@ ipcMain.on("google-auth", () => {
                     }, 2000);
                     return false;
                 }else{
-                    keytar.setPassword("atriamail", "google-code", safeStorage.encryptString(code).toString());
-                    code = null;
+                    keytar.setPassword("atriamail", "google-code", safeStorage.encryptString(authorisationCode).toString("base64"));
+                    authorisationCode = null;
                     authWindow.loadFile("./src/thanks/index.html");
                     setTimeout(() => {
                         authWindow.close();
@@ -97,12 +105,37 @@ ipcMain.on("google-auth", () => {
 });
 
 // Check Google Auth Event
-ipcMain.on("check-google-auth", () => {
-    keytar.getPassword("atriamail", "google-code").then((code) => {
-        if(code == null){
-            window.loadFile("./src/get_started/index.html");
-        }else{
-            window.loadFile("./src/dashboard/index.html");
+let accessToken = null;
+let refreshToken = null;
+ipcMain.on("exchange-token", async () => {
+    console.log("Exchange Token Event");
+    try{
+        const tokenEndpoint = "https://oauth2.googleapis.com/token";
+        const data = new URLSearchParams();
+        data.append("grant_type", "authorization_code");
+        const encryptedPassword = await keytar.getPassword("atriamail", "google-code");
+        const encryptedBuffer = Buffer.from(encryptedPassword, "base64");
+        authorisationCode = safeStorage.decryptString(encryptedBuffer);
+        if(authorisationCode == null){
+            console.log("No Authorisation Code");
+            return;
         }
-    });
+        data.append("code", authorisationCode);
+        data.append("redirect_uri", "http://localhost/oauth");
+        data.append("client_id", process.env.oauth_client_id);
+        data.append("code_verifier", codeVerifier);
+        data.append("client_secret", process.env.oauth_client_secret);
+        fetch(tokenEndpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: data.toString()
+        })
+        .then(response => response.json())
+        .then(data => console.log("DATA: ", data))
+        .catch(err => console.warn("ERROR: ", err));
+    }catch(err){
+        console.warn(err);
+    }
 });

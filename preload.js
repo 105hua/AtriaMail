@@ -16,5 +16,5 @@ contextBridge.exposeInMainWorld("api", {
     closeApp: () => ipcRenderer.send("close-application"),
     getStarted: () => ipcRenderer.send("get-started"),
     googleAuth: () => ipcRenderer.send("google-auth"),
-    checkGoogleAuth: () => ipcRenderer.send("check-google-auth")
+    exchangeToken: () => ipcRenderer.send("exchange-token")
 });
