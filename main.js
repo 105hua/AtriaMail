@@ -2,10 +2,7 @@ const { app, BrowserWindow, ipcMain, safeStorage } = require("electron");
 const path = require("node:path");
 const keytar = require("keytar");
 const crypto = require("crypto");
-const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
-
-let window = null;
 
 const createWindow = () => {
     window = new BrowserWindow({
@@ -73,15 +70,16 @@ ipcMain.on("google-auth", async () => {
     });
     authWindow.loadURL(google_auth_url);
     authWindow.show();
+    authWindow.on("closed", () => {
+        console.log("Closed.");
+    });
     authWindow.webContents.on("will-redirect", async function(event, newUrl){
         try{
             if(newUrl.startsWith("http://localhost/oauth")){
                 event.preventDefault();
                 const url = new URL(newUrl);
-                console.log(url);
                 authorisationCode = url.searchParams.get("code");
                 if(authorisationCode == null){
-                    console.log("Access Denied");
                     authWindow.loadFile("./src/denial/index.html");
                     setTimeout(() => {
                         authWindow.close();
@@ -105,10 +103,7 @@ ipcMain.on("google-auth", async () => {
 });
 
 // Check Google Auth Event
-let accessToken = null;
-let refreshToken = null;
 ipcMain.on("exchange-token", async () => {
-    console.log("Exchange Token Event");
     try{
         const tokenEndpoint = "https://oauth2.googleapis.com/token";
         const data = new URLSearchParams();
@@ -133,7 +128,15 @@ ipcMain.on("exchange-token", async () => {
             body: data.toString()
         })
         .then(response => response.json())
-        .then(data => console.log("DATA: ", data))
+        .then(data => {
+            if(data.access_token != null && data.refresh_token != null){
+                keytar.setPassword("atriamail", "google-access-token", safeStorage.encryptString(data.access_token).toString("base64"));
+                keytar.setPassword("atriamail", "google-refresh-token", safeStorage.encryptString(data.refresh_token).toString("base64"));
+                console.log("Access and Refresh Tokens have been saved securely.");
+            }else{
+                console.warn("Access and Refresh Tokens are null.");
+            }
+        })
         .catch(err => console.warn("ERROR: ", err));
     }catch(err){
         console.warn(err);
