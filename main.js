@@ -2,9 +2,27 @@ const { app, BrowserWindow, ipcMain, safeStorage } = require("electron");
 const path = require("node:path");
 const keytar = require("keytar");
 const crypto = require("crypto");
+const winston = require("winston");
 require("dotenv").config();
 
+const logger = winston.createLogger({
+    level: "info",
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                winston.format.printf(({ timestamp, level, msg }) => {
+                    return`🧋 ${timestamp} [${level}] ${msg}`;
+                })
+            )
+        })
+    ]
+});
+
+logger.info("MAIN SCRIPT");
+
 const createWindow = () => {
+    logger.info("Creating main window...");
     window = new BrowserWindow({
         width: 1400,
         height: 700,
@@ -18,42 +36,52 @@ const createWindow = () => {
         minHeight: 700
     });
     window.loadFile('./src/index/index.html');
+    logger.info("Main window created.");
 };
 
 app.whenReady().then(() => {
-    // Create the window when app is ready.
     createWindow();
-    // Create a new window when the app is activated.
+    logger.info("Registering active event for main window...");
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+    logger.info("Active event registered.");
 });
 
 // Close the app when all windows are closed.
 app.on("window-all-closed", () => {
+    logger.info("All windows closed, quitting application.");
     if (process.platform !== "darwin") app.quit();
 });
 
 // IPC Minimize, Maximize and Close Events.
 ipcMain.on("minimize-application", () => {
+    logger.info("Minimizing application...");
     window.minimize();
+    logger.info("Application minimized.");
 });
 
 ipcMain.on("maximize-application", () => {
+    logger.info("Maximizing application...");
     if (window.isMaximized()) {
+        logger.info("Window already maximized, unmaximizing window...");
         window.unmaximize();
     } else {
         window.maximize();
     }
+    logger.info("Application (un)maximized.");
 });
 
 ipcMain.on("close-application", () => {
+    logger.info("Closing application...");
     window.close();
 });
 
 // Get Started Event
 ipcMain.on("get-started", () => {
+    logger.info("Loading get started page into main window...");
     window.loadFile("./src/get_started/index.html");
+    logger.info("Get started page loaded.");
 });
 
 // Google Auth Event
@@ -63,7 +91,10 @@ const codeChallenge = crypto.createHash("sha256").update(codeVerifier).digest().
 let authorisationCode = null;
 
 ipcMain.on("google-auth", async () => {
+    logger.info("Constructing Google Auth URL...");
     const google_auth_url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.oauth_client_id}&redirect_uri=http://localhost/oauth&scope=https%3A%2F%2Fmail.google.com%2F&access_type=offline&prompt=consent&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    logger.info("Google Auth URL constructed.");
+    logger.info("Creating Google Auth Window...");
     const authWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -74,24 +105,39 @@ ipcMain.on("google-auth", async () => {
             preload: path.join(__dirname, "preload.js")
         }
     });
+    logger.info("Google Auth Window created.");
+    logger.info("Loading constructed auth url into Google Auth Window...");
     authWindow.loadURL(google_auth_url);
+    logger.info("URL Loaded. Showing window...");
     authWindow.show();
+    logger.info("Auth Window Shown.");
+    logger.info("Registering close event for Google Auth Window...");
     authWindow.on("closed", () => {
-        console.log("Closed.");
+        logger.info("Closed.");
     });
+    logger.info("Close event registered.");
+    logger.info("Registering will-redirect event for Google Auth Window...");
     authWindow.webContents.on("will-redirect", async function(event, newUrl){
         try{
+            logger.info("Checking URL for Callback...")
             if(newUrl.startsWith("http://localhost/oauth")){
+                logger.info("Detected Callback URL. Preventing Default Action...");
                 event.preventDefault();
+                logger.info("Prevented.")
+                logger.info("Extracting authorisation code from callback URL...");
                 const url = new URL(newUrl);
                 authorisationCode = url.searchParams.get("code");
+                logger.info("Extracted.");
+                logger.info("Checking if authorisation code is null...");
                 if(authorisationCode == null){
+                    logger.warn("Authorisation Code is null.");
                     authWindow.loadFile("./src/denial/index.html");
                     setTimeout(() => {
                         authWindow.close();
                     }, 2000);
                     return false;
                 }else{
+                    logger.info("Authorisation Code is not null.");
                     keytar.setPassword("atriamail", "google-code", safeStorage.encryptString(authorisationCode).toString("base64"));
                     authorisationCode = null;
                     authWindow.loadFile("./src/thanks/index.html");
@@ -106,11 +152,13 @@ ipcMain.on("google-auth", async () => {
             return false;
         }
     });
+    logger.info("Will-redirect event registered.");
 });
 
 // Check Google Auth Event
 ipcMain.on("exchange-token", async () => {
     try{
+        logger.info("Preparing data for authorisation code exchange...");
         const tokenEndpoint = "https://oauth2.googleapis.com/token";
         const data = new URLSearchParams();
         data.append("grant_type", "authorization_code");
@@ -126,6 +174,8 @@ ipcMain.on("exchange-token", async () => {
         data.append("client_id", process.env.oauth_client_id);
         data.append("code_verifier", codeVerifier);
         data.append("client_secret", process.env.oauth_client_secret);
+        logger.info("Data prepared.");
+        logger.info("Exchanging authorisation code for access and refresh tokens...");
         fetch(tokenEndpoint, {
             method: "POST",
             headers: {
@@ -138,13 +188,13 @@ ipcMain.on("exchange-token", async () => {
             if(data.access_token != null && data.refresh_token != null){
                 keytar.setPassword("atriamail", "google-access-token", safeStorage.encryptString(data.access_token).toString("base64"));
                 keytar.setPassword("atriamail", "google-refresh-token", safeStorage.encryptString(data.refresh_token).toString("base64"));
-                console.log("Access and Refresh Tokens have been saved securely.");
+                logger.info("Access and Refresh Tokens stored.");
             }else{
-                console.warn("Access and Refresh Tokens are null.");
+                logger.warn("Access and Refresh Tokens are null.");
             }
         })
-        .catch(err => console.warn("ERROR: ", err));
+        .catch(err => logger.warn("ERROR: ", err));
     }catch(err){
-        console.warn(err);
+        logger.warn(err);
     }
 });
